@@ -10,6 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { DeleteTaskDto } from './dto/delete-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -24,28 +26,41 @@ export class TasksController {
   constructor(private tasksService: TasksService) {}
 
   @Get()
-  async getTasks(@Query() filterDto: GetTasksFilterDto): Promise<Task[]> {
-    return this.tasksService.getTasks(filterDto);
+  async getTasks(
+    @Query() filterDto: GetTasksFilterDto,
+    @GetUser() user: User,
+  ): Promise<Task[]> {
+    return this.tasksService.getTasks(filterDto, user);
   }
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.tasksService.createTask(createTaskDto);
+  createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.tasksService.createTask(createTaskDto, user);
   }
   @Get('/:id')
-  getTaskById(@Param() getTaskDto: GetTaskDto): Promise<Task> {
+  getTaskById(
+    @Param() getTaskDto: GetTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
     const { id } = getTaskDto;
-    return this.tasksService.getTaskById(id);
+    return this.tasksService.getTaskById(id, user);
   }
   @Delete('/:id')
-  deleteTaskById(@Param() deleteTaskDto: DeleteTaskDto): Promise<void> {
-    return this.tasksService.deleteTaskById(deleteTaskDto);
+  deleteTaskById(
+    @Param() deleteTaskDto: DeleteTaskDto,
+    @GetUser() user: User,
+  ): Promise<void> {
+    return this.tasksService.deleteTaskById(deleteTaskDto, user);
   }
   @Patch('/:id/status')
   updateTaskById(
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
+    @GetUser() user: User,
   ): Promise<Task> {
     updateTaskDto.id = id;
-    return this.tasksService.updateTaskById(updateTaskDto);
+    return this.tasksService.updateTaskById(updateTaskDto, user);
   }
 }
